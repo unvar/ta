@@ -1,0 +1,41 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:recommended"
+  ],
+  "jsRules": {},
+  "rules": {
+    "ordered-imports": false,
+    "member-ordering": [
+      true,
+      {
+        "order": [
+          "public-static-field",
+          "private-static-field",
+          "public-instance-field",
+          "private-instance-field",
+          "public-constructor",
+          "private-constructor",
+          "public-instance-method",
+          "protected-instance-method",
+          "private-instance-method",
+          "public-static-method",
+          "private-static-method"
+        ]
+      }
+    ],
+    "no-unsafe-any": true,
+    "quotemark": [true, "single", "jsx-double"],
+    "object-literal-sort-keys": [false],
+    "semicolon": [true, "never"],
+    "no-floating-promises": true,
+    "no-unused-expression": true,
+    "ter-arrow-parens": true,
+    "trailing-comma": [true, {
+      "esSpecCompliant": true
+    }]
+  },
+  "rulesDirectory": [
+    "./node_modules/tslint-eslint-rules/dist/rules"
+  ]
+}
