@@ -10,11 +10,11 @@ let mainWindow: BrowserWindow | null
 function createMainWindow() {
   const window = new BrowserWindow({
     webPreferences: { nodeIntegration: true },
-    width: 600,
-    height: 400,
-    maxWidth: 800,
-    maxHeight: 600,
+    width: 800,
+    height: 600,
+    resizable: false,
     frame: false,
+    titleBarStyle: 'hiddenInset'
   })
 
   if (isDevelopment) {
