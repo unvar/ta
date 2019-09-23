@@ -7,5 +7,6 @@ export default (props: { height: string }) => (
     fill="horizontal"
     className="titleBar"
     height={props.height}
+    background="dark-1"
   />
 )

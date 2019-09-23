@@ -1,8 +1,10 @@
 import React, { Component} from 'react'
-import { Box, Grommet } from 'grommet'
+import { Grommet } from 'grommet'
 import TitleBar from '../components/TitleBar'
 import './index.less'
 import SelectFolder from '../components/SelectFolder'
+import VideoGrid from '../components/VideoGrid'
+import path from 'path'
 
 // grommet theme
 const theme = {
@@ -16,12 +18,12 @@ const theme = {
 }
 
 // react state
-interface IAppState {
+interface IState {
   root?: string,
 }
 
 // react app component
-export default class App extends Component<{}, IAppState> {
+export default class App extends Component<{}, IState> {
   constructor(props: Readonly<{}>) {
     super(props)
     this.state = {}
@@ -30,13 +32,12 @@ export default class App extends Component<{}, IAppState> {
   public render() {
     return (
       <Grommet theme={theme} full>
-        <Box fill="vertical" background="dark-1" pad={{ bottom: '40px' }}>
-          <TitleBar height="40px" />
-          {
-            this.state.root ? this.state.root :
-            <SelectFolder onSelect={this.setRootFolder.bind(this)}/>
-          }
-        </Box>
+        <TitleBar height="40px" />
+        {
+          this.state.root ?
+          <VideoGrid path={path.join(this.state.root, 'RecentClips')} /> :
+          <SelectFolder onSelect={this.setRootFolder.bind(this)}/>
+        }
       </Grommet>
     )
   }
