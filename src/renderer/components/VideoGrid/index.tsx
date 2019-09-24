@@ -19,7 +19,16 @@ interface IState {
     ffprobe: string,
   },
   loaded: boolean,
-  files: string[],
+  files?: { [key: string]: IVideo },
+  cache?: string
+}
+
+export interface IVideo {
+  label: string,
+  name: string,
+  left: string,
+  front: string,
+  right: string,
 }
 
 const columns: { [key: string]: string[]} = {
@@ -34,7 +43,6 @@ export default class VideoGrid extends Component<IProps, IState> {
     super(props)
     this.state = {
       loaded: false,
-      files: []
     }
   }
 
@@ -56,7 +64,17 @@ export default class VideoGrid extends Component<IProps, IState> {
               columns={columns[size]}
               gap="small"
             >
-              {this.state.files.map((file) => <VideoTile path={this.props.path} file={file} key={file} />)}
+              {
+                Object.keys(this.state.files!).sort().map((file) =>
+                <VideoTile
+                  path={this.props.path}
+                  file={this.state.files![file]}
+                  key={file}
+                  ffmpeg={this.state.binaries!.ffmpeg}
+                  ffprobe={this.state.binaries!.ffprobe}
+                  cache={this.state.cache!}
+                />)
+              }
             </Grid>
           )}
           </ResponsiveContext.Consumer>
@@ -82,10 +100,8 @@ export default class VideoGrid extends Component<IProps, IState> {
 
       // check the results and download if needed
       if (
-        !locations.ffmpeg ||
-        !locations.ffmpeg.found ||
-        !locations.ffprobe ||
-        !locations.ffprobe.found
+        !locations.ffmpeg || !locations.ffmpeg.found ||
+        !locations.ffprobe || !locations.ffprobe.found
       ) {
         // download the binaries
         ffbinaries.downloadBinaries(
@@ -100,40 +116,60 @@ export default class VideoGrid extends Component<IProps, IState> {
               console.error(err)
               // TODO:
             } else {
-              this.setState({
-                binaries: {
-                  ffmpeg: path.join(bin, 'ffmpeg'),
-                  ffprobe: path.join(bin, 'ffprobe')
-                },
-              })
+              this.setBinaries(path.join(bin, 'ffmpeg'), path.join(bin, 'ffprobe'))
             }
           }
         )
       } else {
-        this.setState({
-          binaries: {
-            ffmpeg: locations.ffmpeg.path,
-            ffprobe: locations.ffprobe.path
-          },
-        })
+        this.setBinaries(locations.ffmpeg.path, locations.ffprobe.path)
       }
     }
   }
 
   public componentDidUpdate() {
     if (!this.state.loaded) {
+      // check for cache directory
+      const cache = path.join(this.props.data, 'cache')
+      mkdirp.sync(cache)
+
+      // read the files in video directory
       fs.readdir(this.props.path, (err, files) => {
         if (err) {
           // tslint:disable-next-line: no-console
           console.error(err)
           // TODO:
         } else {
+          const processedFiles = files
+            .filter((file) => file.endsWith('-front.mp4'))
+            .map((file) => file.replace('-front.mp4', ''))
+            .reduce((prev: { [key: string]: IVideo}, file) => {
+              prev[file] = {
+                label: 'foo',
+                name: file,
+                left: `${file}-left_repeater.mp4`,
+                front: `${file}-front.mp4`,
+                right: `${file}-right_repeater.mp4`,
+              }
+              return prev
+            }, {})
           this.setState({
             loaded: true,
-            files: files.filter((file) => file.endsWith('-front.mp4')).sort()
+            files: processedFiles,
+            cache,
           })
         }
       })
     }
+  }
+
+  private setBinaries(ffmpeg: string, ffprobe: string) {
+    process.env.FFMPEG_PATH = ffmpeg
+    process.env.FFPROBE_PATH = ffprobe
+    this.setState({
+      binaries: {
+        ffmpeg,
+        ffprobe
+      },
+    })
   }
 }
