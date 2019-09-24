@@ -5,6 +5,10 @@ import './index.less'
 import SelectFolder from '../components/SelectFolder'
 import VideoGrid from '../components/VideoGrid'
 import path from 'path'
+import { remote } from 'electron'
+
+const userDataPath = remote.app.getPath('userData')
+const appData = path.join(userDataPath, 'ta')
 
 // grommet theme
 const theme = {
@@ -35,7 +39,10 @@ export default class App extends Component<{}, IState> {
         <TitleBar height="40px" />
         {
           this.state.root ?
-          <VideoGrid path={path.join(this.state.root, 'RecentClips')} /> :
+          <VideoGrid
+            data={appData}
+            path={path.join(this.state.root, 'RecentClips')}
+          /> :
           <SelectFolder onSelect={this.setRootFolder.bind(this)}/>
         }
       </Grommet>

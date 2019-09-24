@@ -16,7 +16,7 @@ export default class Container extends Component<IProps> {
         align="center"
         alignSelf="center"
         justify="center"
-        style={{ marginTop: '40px' }}
+        style={!this.props.fill ? { marginTop: '40px' } : {}}
       >
         {this.props.children}
       </Box>
