@@ -34,8 +34,6 @@ export default class VideoTile extends Component<IProps, IState> {
         fill
         pad="small"
         margin="small"
-        border="all"
-        round="xsmall"
         alignContent="center"
         align="center"
         alignSelf="center"
@@ -44,15 +42,15 @@ export default class VideoTile extends Component<IProps, IState> {
         <Stack anchor="center">
           {
             this.state.thumbnail ?
-            <div>screenshot</div> :
-            <Video size="120px" color="dark-3"/>
+            <img width="160" src={`ta://${this.state.thumbnail}`} /> :
+            <Stack anchor="center">
+              <Video size="160px" color="dark-3"/>
+              <ClipLoader color="#666" />
+            </Stack>
           }
-          {
-            this.state.video ?
-            <CirclePlay size="medium" /> :
-            <ClipLoader color="#666" />
-          }
+          <CirclePlay size="large" color="#eaeaea" />
         </Stack>
+        {this.props.file.label}
       </Box>
     )
   }

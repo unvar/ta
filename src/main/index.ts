@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, protocol } from 'electron'
 import * as path from 'path'
 import { format as formatUrl } from 'url'
 
@@ -6,6 +6,19 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
 let mainWindow: BrowserWindow | null
+
+app.on('ready', () => {
+  protocol.registerFileProtocol('ta', (request, callback) => {
+    const url = request.url.substr(5)
+    callback(path.normalize(`${url}`))
+  }, (error) => {
+    if (error) {
+      // tslint:disable-next-line: no-console
+      console.error('Failed to register protocol')
+      // TODO:
+    }
+  })
+})
 
 function createMainWindow() {
   const window = new BrowserWindow({

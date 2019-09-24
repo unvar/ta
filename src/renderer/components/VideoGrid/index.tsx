@@ -7,6 +7,7 @@ import VideoTile from '../VideoTile'
 import Container from '../Container'
 import Loader from '../Loader'
 import mkdirp from 'mkdirp'
+import moment from 'moment'
 
 interface IProps {
   path: string
@@ -144,7 +145,7 @@ export default class VideoGrid extends Component<IProps, IState> {
             .map((file) => file.replace('-front.mp4', ''))
             .reduce((prev: { [key: string]: IVideo}, file) => {
               prev[file] = {
-                label: 'foo',
+                label: moment(file, 'YYYY-MM-DD_HH-mm-ss').format('ddd, MMM Do, h:mm:ss a'),
                 name: file,
                 left: `${file}-left_repeater.mp4`,
                 front: `${file}-front.mp4`,
