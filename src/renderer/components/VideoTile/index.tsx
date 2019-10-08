@@ -10,9 +10,8 @@ import ffmpeg from 'fluent-ffmpeg'
 interface IProps {
   path: string
   file: IVideo
-  ffmpeg: string
-  ffprobe: string
   cache: string
+  onSelect: (file: string) => void
 }
 
 interface IState {
@@ -48,7 +47,7 @@ export default class VideoTile extends Component<IProps, IState> {
               <ClipLoader color="#666" />
             </Stack>
           }
-          <CirclePlay size="large" color="#eaeaea" />
+          <CirclePlay size="large" color="#eaeaea" onClick={this.playVideo.bind(this)} />
         </Stack>
         {this.props.file.label}
       </Box>
@@ -62,7 +61,10 @@ export default class VideoTile extends Component<IProps, IState> {
 
     if (!fs.existsSync(thumbnail)) {
       // generate thumbnail
-      ffmpeg(path.join(this.props.path, this.props.file.front))
+      ffmpeg
+      .setFfmpegPath(process.env.FFMPEG_PATH!)
+      .setFfprobePath(process.env.FFPROBE_PATH!)
+      .input(path.join(this.props.path, this.props.file.front))
       .on('end', () => {
         this.setState({
           thumbnail,
@@ -79,5 +81,9 @@ export default class VideoTile extends Component<IProps, IState> {
         thumbnail,
       })
     }
+  }
+
+  private playVideo() {
+    this.props.onSelect(this.props.file.name)
   }
 }

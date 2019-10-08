@@ -1,13 +1,14 @@
 import React, { Component } from 'react'
 import fs from 'fs'
 import path from 'path'
-import { Grid, ResponsiveContext } from 'grommet'
+import { Grid, ResponsiveContext, Box, Layer } from 'grommet'
 import ffbinaries from 'ffbinaries'
 import VideoTile from '../VideoTile'
 import Container from '../Container'
 import Loader from '../Loader'
 import mkdirp from 'mkdirp'
 import moment from 'moment'
+import { ipcRenderer } from 'electron'
 
 interface IProps {
   path: string
@@ -15,13 +16,11 @@ interface IProps {
 }
 
 interface IState {
-  binaries?: {
-    ffmpeg: string,
-    ffprobe: string,
-  },
   loaded: boolean,
+  binaries?: boolean,
   files?: { [key: string]: IVideo },
   cache?: string
+  selectedVideo?: string
 }
 
 export interface IVideo {
@@ -55,28 +54,39 @@ export default class VideoGrid extends Component<IProps, IState> {
         <Container fill={false}>
           <ResponsiveContext.Consumer>
             {(size) => (
-            <Grid
-              align="center"
-              alignContent="center"
-              alignSelf="center"
-              justify="center"
-              justifyContent="center"
-              rows="small"
-              columns={columns[size]}
-              gap="small"
-            >
-              {
-                Object.keys(this.state.files!).sort().map((file) =>
-                <VideoTile
-                  path={this.props.path}
-                  file={this.state.files![file]}
-                  key={file}
-                  ffmpeg={this.state.binaries!.ffmpeg}
-                  ffprobe={this.state.binaries!.ffprobe}
-                  cache={this.state.cache!}
-                />)
-              }
-            </Grid>
+              <Box>
+                <Grid
+                  align="center"
+                  alignContent="center"
+                  alignSelf="center"
+                  justify="center"
+                  justifyContent="center"
+                  rows="small"
+                  columns={columns[size]}
+                  gap="small"
+                >
+                  {
+                    Object.keys(this.state.files!).sort().map((file) =>
+                    <VideoTile
+                      path={this.props.path}
+                      file={this.state.files![file]}
+                      key={file}
+                      cache={this.state.cache!}
+                      onSelect={this.setSelectedVideo.bind(this)}
+                    />)
+                  }
+                </Grid>
+                {this.state.selectedVideo && (
+                  <Layer
+                    onEsc={() => this.setSelectedVideo(undefined)}
+                    onClickOutside={() => this.setSelectedVideo(undefined)}
+                  >
+                    <video width="640" height="720" controls autoPlay>
+                      <source src={`tav://${this.props.path}/${this.state.selectedVideo}`} type="video/mp4" />
+                    </video>
+                  </Layer>
+                )}
+              </Box>
           )}
           </ResponsiveContext.Consumer>
         </Container>
@@ -166,11 +176,16 @@ export default class VideoGrid extends Component<IProps, IState> {
   private setBinaries(ffmpeg: string, ffprobe: string) {
     process.env.FFMPEG_PATH = ffmpeg
     process.env.FFPROBE_PATH = ffprobe
+    ipcRenderer.send('ffmpeg-loaded', ffmpeg)
+    ipcRenderer.send('ffprobe-loaded', ffprobe)
     this.setState({
-      binaries: {
-        ffmpeg,
-        ffprobe
-      },
+      binaries: true,
+    })
+  }
+
+  private setSelectedVideo(file?: string) {
+    this.setState({
+      selectedVideo: file
     })
   }
 }

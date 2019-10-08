@@ -1,30 +1,33 @@
-import { app, BrowserWindow, protocol } from 'electron'
+import { app, BrowserWindow, protocol, ipcMain } from 'electron'
 import * as path from 'path'
 import { format as formatUrl } from 'url'
+import { fileHandlers } from './protocols'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
 let mainWindow: BrowserWindow | null
 
+ipcMain.on('ffmpeg-loaded', (event, arg: string) => {
+  process.env.FFMPEG_PATH = arg
+})
+
+ipcMain.on('ffprobe-loaded', (event, arg: string) => {
+  process.env.FFPROBE_PATH = arg
+})
+
 app.on('ready', () => {
-  protocol.registerFileProtocol('ta', (request, callback) => {
-    const url = request.url.substr(5)
-    callback(path.normalize(`${url}`))
-  }, (error) => {
-    if (error) {
-      // tslint:disable-next-line: no-console
-      console.error('Failed to register protocol')
-      // TODO:
-    }
-  })
+  // tslint:disable-next-line: no-console
+  protocol.registerFileProtocol('ta', fileHandlers.ta, console.error)
+  // tslint:disable-next-line: no-console
+  protocol.registerFileProtocol('tav', fileHandlers.tav, console.error)
 })
 
 function createMainWindow() {
   const window = new BrowserWindow({
     webPreferences: { nodeIntegration: true },
-    width: 800,
-    height: 600,
+    width: 1024,
+    height: 768,
     resizable: false,
     frame: false,
     titleBarStyle: 'hiddenInset'
