@@ -19,6 +19,11 @@ const theme = {
       height: '20px',
     },
   },
+  layer: {
+    overlay: {
+      background: 'rgb(0, 0, 0, 0.95)'
+    }
+  }
 }
 
 // react state

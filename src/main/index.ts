@@ -26,11 +26,13 @@ app.on('ready', () => {
 function createMainWindow() {
   const window = new BrowserWindow({
     webPreferences: { nodeIntegration: true },
-    width: 1024,
-    height: 768,
+    width: 960,
+    height: 800,
     resizable: false,
     frame: false,
-    titleBarStyle: 'hiddenInset'
+    titleBarStyle: 'hiddenInset',
+    backgroundColor: '#333',
+    fullscreenable: false
   })
 
   if (isDevelopment) {

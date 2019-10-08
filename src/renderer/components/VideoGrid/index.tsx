@@ -80,6 +80,9 @@ export default class VideoGrid extends Component<IProps, IState> {
                   <Layer
                     onEsc={() => this.setSelectedVideo(undefined)}
                     onClickOutside={() => this.setSelectedVideo(undefined)}
+                    responsive
+                    animation="slide"
+                    animate
                   >
                     <video width="640" height="720" controls autoPlay>
                       <source src={`tav://${this.props.path}/${this.state.selectedVideo}`} type="video/mp4" />
