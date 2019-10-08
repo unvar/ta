@@ -9,6 +9,7 @@ import Loader from '../Loader'
 import mkdirp from 'mkdirp'
 import moment from 'moment'
 import { ipcRenderer } from 'electron'
+import poster from './x-opening.gif'
 
 interface IProps {
   path: string
@@ -83,8 +84,12 @@ export default class VideoGrid extends Component<IProps, IState> {
                     responsive
                     animation="slide"
                     animate
+                    style={{ background: 'rgb(0, 0, 0, 0.9)' }}
                   >
-                    <video width="640" height="720" controls autoPlay>
+                    <video
+                      width="640" height="720" controls autoPlay
+                      poster={poster}
+                    >
                       <source src={`tav://${this.props.path}/${this.state.selectedVideo}`} type="video/mp4" />
                     </video>
                   </Layer>

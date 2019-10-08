@@ -21,7 +21,7 @@ const theme = {
   },
   layer: {
     overlay: {
-      background: 'rgb(0, 0, 0, 0.95)'
+      background: 'rgb(0, 0, 0, 0.90)'
     }
   }
 }
