@@ -61,10 +61,13 @@ export default class VideoTile extends Component<IProps, IState> {
 
     if (!fs.existsSync(thumbnail)) {
       // generate thumbnail
-      ffmpeg
+      const thumbnailPath = path.parse(thumbnail)
+      ffmpeg()
       .setFfmpegPath(process.env.FFMPEG_PATH!)
       .setFfprobePath(process.env.FFPROBE_PATH!)
       .input(path.join(this.props.path, this.props.file.front))
+      // tslint:disable-next-line: no-console
+      .on('error', console.error)
       .on('end', () => {
         this.setState({
           thumbnail,
@@ -72,8 +75,8 @@ export default class VideoTile extends Component<IProps, IState> {
       })
       .thumbnail({
         count: 1,
-        filename: this.props.file.name + '.png',
-        folder: this.props.cache,
+        filename: thumbnailPath.base,
+        folder: thumbnailPath.dir,
         size: '160x160'
       })
     } else {

@@ -46,7 +46,7 @@ export default class App extends Component<{}, IState> {
           this.state.root ?
           <VideoGrid
             data={appData}
-            path={path.join(this.state.root, 'RecentClips')}
+            path={path.join(this.state.root, 'SentryClips')}
           /> :
           <SelectFolder onSelect={this.setRootFolder.bind(this)}/>
         }

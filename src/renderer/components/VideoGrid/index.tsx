@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import fs from 'fs'
+import readdirp from 'readdirp'
 import path from 'path'
 import { Grid, ResponsiveContext, Box, Layer } from 'grommet'
 import ffbinaries from 'ffbinaries'
@@ -145,38 +145,35 @@ export default class VideoGrid extends Component<IProps, IState> {
     }
   }
 
-  public componentDidUpdate() {
+  public async componentDidUpdate() {
     if (!this.state.loaded) {
       // check for cache directory
       const cache = path.join(this.props.data, 'cache')
       mkdirp.sync(cache)
 
-      // read the files in video directory
-      fs.readdir(this.props.path, (err, files) => {
-        if (err) {
-          // tslint:disable-next-line: no-console
-          console.error(err)
-          // TODO:
-        } else {
-          const processedFiles = files
-            .filter((file) => file.endsWith('-front.mp4'))
-            .map((file) => file.replace('-front.mp4', ''))
-            .reduce((prev: { [key: string]: IVideo}, file) => {
-              prev[file] = {
-                label: moment(file, 'YYYY-MM-DD_HH-mm-ss').format('ddd, MMM Do, h:mm:ss a'),
-                name: file,
-                left: `${file}-left_repeater.mp4`,
-                front: `${file}-front.mp4`,
-                right: `${file}-right_repeater.mp4`,
-              }
-              return prev
-            }, {})
-          this.setState({
-            loaded: true,
-            files: processedFiles,
-            cache,
-          })
+      const files = await readdirp.promise(this.props.path, {
+        fileFilter: '*-front.mp4',
+        type: 'files',
+        depth: 2
+      })
+
+      const processedFiles = files
+      .map((file) => file.fullPath.replace(this.props.path, '').replace('-front.mp4', ''))
+      .reduce((prev: { [key: string]: IVideo}, file) => {
+        prev[file] = {
+          label: moment(path.parse(file).name, 'YYYY-MM-DD_HH-mm-ss').format('ddd, MMM Do, h:mm:ss a'),
+          name: file,
+          left: `${file}-left_repeater.mp4`,
+          front: `${file}-front.mp4`,
+          right: `${file}-right_repeater.mp4`,
         }
+        return prev
+      }, {})
+
+      this.setState({
+        loaded: true,
+        files: processedFiles,
+        cache,
       })
     }
   }
